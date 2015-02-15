@@ -1,0 +1,30 @@
+{
+  "name": "gumyen",
+  "version": "1.0.0",
+  "description": "Guess encoding, open file.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node ./test/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/davethehat/gumyen"
+  },
+  "keywords": [
+    "file",
+    "encoding",
+    "utility"
+  ],
+  "author": "David Harvey",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/davethehat/gumyen/issues"
+  },
+  "homepage": "https://github.com/davethehat/gumyen",
+  "devDependencies": {
+    "async": "^0.9.0",
+    "iconv-lite": "^0.4.7"
+  },
+  "dependencies": {
+  }
+}
