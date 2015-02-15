@@ -9,6 +9,43 @@ module.exports = {
   readFileWithDetectedEncodingSync: readFileWithDetectedEncodingSync
 };
 
+
+var XML_PFX   = '<?xml';
+var UTF_16_LE = 'utf16le';
+var UTF_16_BE = 'utf16be';
+var UTF_8     = 'utf8';
+var UNKNOWN   = 'unknown';
+var DEFAULT   = UTF_8;
+
+var ENCODING_MAP = {
+  'fffe'   : UTF_16_LE,
+  'feff'   : UTF_16_BE,
+  'efbb'   : checkUTF8,
+  '3c3f'   : checkUTF8XML,
+  '3c00'   : checkUTF16leXML,
+  '003c'   : checkUTF16beXML
+};
+
+function checkUTF8(buffer) {
+  if (buffer[3] === 0xbf) return UTF_8;
+  return UNKNOWN;
+}
+
+function checkUTF8XML(buffer) {
+  var s = buffer.toString(UTF_8,0,5);
+  return s === XML_PFX ? UTF_8: UNKNOWN;
+}
+
+function checkUTF16leXML(buffer) {
+  var s = buffer.toString(UTF_16_LE,0,10);
+  return s === XML_PFX ? UTF_16_LE: UNKNOWN;
+}
+
+function checkUTF16beXML(buffer) {
+  var s = buffer.toString(UTF_16_BE,0,10);
+  return s === XML_PFX ? UTF_16_BE: UNKNOWN;
+}
+
 function encoding(filename, cb) {
   fs.open(filename, 'r', check);
 
@@ -45,12 +82,16 @@ function readFileWithDetectedEncodingSync(filename) {
 }
 
 function _encoding(fd) {
-  var encoding = 'utf8';
-  var buffer = new Buffer(4);
-  fs.readSync(fd, buffer, 0, 4, null);
-  if (buffer[0] === 0xFF) {
-    encoding = buffer[1] === 0xFF ? 'utf16be' : 'utf16le';
-  }
+  var buffer = new Buffer(10);
+  fs.readSync(fd, buffer, 0, 10, null);
   fs.closeSync(fd);
-  return encoding;
+  var key = pad(buffer[0]) + pad(buffer[1]);
+  var xxx = ENCODING_MAP[key];
+  return !xxx ? DEFAULT
+    : typeof xxx === 'function' ? xxx(buffer)
+    : xxx;
+
+  function pad(n) {
+    return ('0' + n.toString(16)).slice(-2);
+  }
 }

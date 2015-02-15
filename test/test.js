@@ -14,10 +14,13 @@ var fileData = 'Shakespeare said... être ou ne pas être, c\'est le question';
 var basedir = path.normalize(__dirname + '/..');
 
 var encodings = {
-  utf8 :   {path: null, bom: []},
-  utf16le: {path: null, bom: [0xff, 0xfe]},
-  utf16be: {path: null, bom: [0xff, 0xff]}
+  utf8 :   {path: null, xml: null, bom: []},
+  utf16le: {path: null, xml: null, bom: [0xff, 0xfe]},
+  utf16be: {path: null, xml: null, bom: [0xfe, 0xff]}
 };
+
+// just some nonsense xml - gumyen looks at the first 5 chars...
+var xml = '<?xml encoding="UTF-WHATEVER"><doc></doc>';
 
 run(function() {
   console.log('All OK!');
@@ -41,6 +44,7 @@ function createEncodedFiles(done) {
   fs.mkdir(tempDir, withTmp);
   function withTmp() {
     Object.keys(encodings).forEach(writeEncodedFile);
+    Object.keys(encodings).forEach(writeXMLFile);
     done();
   }
 
@@ -49,6 +53,12 @@ function createEncodedFiles(done) {
     encodings[encoding].path = output;
     var buf = iconv.encode(fileData, encoding);
     fs.writeFileSync(output, Buffer.concat([new Buffer(encodings[encoding].bom), buf]));
+  }
+
+  function writeXMLFile(encoding) {
+    var output = path.join(tempDir, encoding + '.xml');
+    encodings[encoding].xml = output;
+    fs.writeFileSync(output, xml, {encoding: encoding});
   }
 }
 
@@ -72,6 +82,8 @@ function testEncodingSync(done) {
   function check(encoding) {
     var enc = gumyen.encodingSync(encodings[encoding].path);
     assert.equal(enc, encoding);
+    var xmlenc = gumyen.encodingSync(encodings[encoding].xml);
+    assert.equal(xmlenc, encoding);
   }
 
   done();
@@ -98,6 +110,8 @@ function testReadFileSync(done) {
   function check(encoding) {
     var data = gumyen.readFileWithDetectedEncodingSync(encodings[encoding].path);
     assert.equal(data, fileData, 'Contents match for encoding ' + encoding);
+    var xmldata = gumyen.readFileWithDetectedEncodingSync(encodings[encoding].xml);
+    assert.equal(xmldata, xml, 'Contents match for encoding ' + encoding);
   }
 
   done();
