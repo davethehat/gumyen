@@ -1,6 +1,6 @@
 {
   "name": "gumyen",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Guess encoding, open file.",
   "main": "index.js",
   "scripts": {
