@@ -21,7 +21,7 @@ gumyen.readFileWithDetectedEncoding(filename, function(err, data, encoding) {
   // data ios string contents of file
 });
 
-var data = gumyen.readFileWithDetectedEncoding(filename);
+var data = gumyen.readFileWithDetectedEncodingSync(filename);
 // sync version of above
 ```
 
