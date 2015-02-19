@@ -20,6 +20,8 @@ var DEFAULT   = UTF_8;
 var ENCODING_MAP = {
   'fffe'   : UTF_16_LE,
   'feff'   : UTF_16_BE,
+  '5600'   : UTF_16_LE,
+  '0056'   : UTF_16_BE,
   'efbb'   : checkUTF8,
   '3c3f'   : checkUTF8XML,
   '3c00'   : checkUTF16leXML,
